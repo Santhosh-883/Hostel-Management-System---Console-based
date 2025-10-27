@@ -109,7 +109,10 @@ public class WardenPanel {
             ConsoleUtils.clearConsole();
             System.out.println("Login successful! Welcome, " + currentWarden.getName());
         } else {
-            System.out.println("Invalid username or password. Please try again.");
+            ConsoleUtils.clearConsole();
+            System.out.println("Credentials not found. Please check your username and password.");
+            System.out.print("Press Enter to continue...");
+            scanner.nextLine();
             login(); // Retry login
         }
     }

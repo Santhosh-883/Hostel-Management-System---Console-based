@@ -93,6 +93,7 @@ public class DataManager {
 
     public void addComplaint(Complaint complaint) {
         complaints.add(complaint);
+        saveComplaints();
     }
 
     public List<Complaint> getComplaints() {
