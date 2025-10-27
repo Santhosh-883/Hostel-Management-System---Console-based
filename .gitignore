@@ -1,5 +1,5 @@
-# Exclude data folder completely
-data/
+# Exclude only .txt files in data folder, but keep .java files
+data/*.txt
 
 # Java compiled files
 *.class
