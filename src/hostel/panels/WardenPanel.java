@@ -7,6 +7,7 @@ import hostel.models.LeaveRequest;
 import hostel.models.Poll;
 import hostel.models.Student;
 import hostel.models.Warden;
+import hostel.utils.ConsoleUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,6 +31,7 @@ public class WardenPanel {
         }
         boolean running = true;
         while (running) {
+            ConsoleUtils.clearConsole();
             System.out.println("\n--- Warden Panel ---");
             System.out.println("Welcome, " + currentWarden.getName() + "!");
             System.out.println("1. Add Student");
@@ -49,30 +51,39 @@ public class WardenPanel {
 
             switch (choice) {
                 case 1:
+                    ConsoleUtils.clearConsole();
                     addStudent();
                     break;
                 case 2:
+                    ConsoleUtils.clearConsole();
                     viewAllStudents();
                     break;
                 case 3:
+                    ConsoleUtils.clearConsole();
                     viewStudentsByRoom();
                     break;
                 case 4:
+                    ConsoleUtils.clearConsole();
                     manageLeaveRequests();
                     break;
                 case 5:
+                    ConsoleUtils.clearConsole();
                     viewAttendanceRecords();
                     break;
                 case 6:
+                    ConsoleUtils.clearConsole();
                     viewComplaints();
                     break;
                 case 7:
+                    ConsoleUtils.clearConsole();
                     viewDailyAttendanceReport();
                     break;
                 case 8:
+                    ConsoleUtils.clearConsole();
                     createPoll();
                     break;
                 case 9:
+                    ConsoleUtils.clearConsole();
                     viewPollResults();
                     break;
                 case 10:
@@ -86,6 +97,7 @@ public class WardenPanel {
     }
 
     private void login() {
+        ConsoleUtils.clearConsole();
         System.out.println("\n--- Warden Login ---");
         System.out.print("Enter username: ");
         String username = scanner.nextLine();
@@ -94,6 +106,7 @@ public class WardenPanel {
 
         if (dataManager.authenticateWarden(username, password)) {
             currentWarden = dataManager.getWarden(username);
+            ConsoleUtils.clearConsole();
             System.out.println("Login successful! Welcome, " + currentWarden.getName());
         } else {
             System.out.println("Invalid username or password. Please try again.");
@@ -102,6 +115,7 @@ public class WardenPanel {
     }
 
     private void logout() {
+        ConsoleUtils.clearConsole();
         currentWarden = null;
         System.out.println("Logged out successfully.");
     }
@@ -121,6 +135,8 @@ public class WardenPanel {
         dataManager.addStudent(student);
 
         System.out.println("Student added successfully!");
+        System.out.print("Press Enter to continue...");
+        scanner.nextLine();
     }
 
     private void viewAllStudents() {
@@ -132,6 +148,8 @@ public class WardenPanel {
                 System.out.println(student);
             }
         }
+        System.out.print("Press Enter to continue...");
+        scanner.nextLine();
     }
 
     private void viewStudentsByRoom() {
@@ -162,6 +180,8 @@ public class WardenPanel {
 
         // Note unallocated rooms (for now, since we don't have predefined rooms, we can mention it)
         System.out.println("\nNote: Rooms without students are considered unallocated.");
+        System.out.print("Press Enter to continue...");
+        scanner.nextLine();
     }
 
     private void manageLeaveRequests() {
@@ -170,6 +190,8 @@ public class WardenPanel {
 
         if (requests.isEmpty()) {
             System.out.println("No leave requests found.");
+            System.out.print("Press Enter to continue...");
+            scanner.nextLine();
             return;
         }
 
@@ -195,6 +217,8 @@ public class WardenPanel {
 
             dataManager.updateLeaveRequests(requests);
             System.out.println("Leave request updated.");
+            System.out.print("Press Enter to continue...");
+            scanner.nextLine();
         }
     }
 
@@ -209,6 +233,8 @@ public class WardenPanel {
                 System.out.println(record);
             }
         }
+        System.out.print("Press Enter to continue...");
+        scanner.nextLine();
     }
 
     private void viewComplaints() {
@@ -222,6 +248,8 @@ public class WardenPanel {
                 System.out.println(complaint);
             }
         }
+        System.out.print("Press Enter to continue...");
+        scanner.nextLine();
     }
 
     private void viewDailyAttendanceReport() {
@@ -268,6 +296,8 @@ public class WardenPanel {
         if (!hasNoAttendance) {
             System.out.println("All students marked attendance today.");
         }
+        System.out.print("Press Enter to continue...");
+        scanner.nextLine();
     }
 
     private void createPoll() {
@@ -293,6 +323,8 @@ public class WardenPanel {
         dataManager.addPoll(poll);
 
         System.out.println("Poll created successfully! Poll ID: " + pollId);
+        System.out.print("Press Enter to continue...");
+        scanner.nextLine();
     }
 
     private void viewPollResults() {
@@ -324,5 +356,7 @@ public class WardenPanel {
             }
             System.out.println("Total votes: " + totalVotes);
         }
+        System.out.print("Press Enter to continue...");
+        scanner.nextLine();
     }
 }

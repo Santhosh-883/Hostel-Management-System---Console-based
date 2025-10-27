@@ -7,6 +7,7 @@ import hostel.models.LeaveRequest;
 import hostel.models.Poll;
 import hostel.models.Student;
 import hostel.models.Vote;
+import hostel.utils.ConsoleUtils;
 
 import java.util.List;
 
@@ -24,23 +25,29 @@ public class StudentPanel {
     }
 
     public void login() {
+        ConsoleUtils.clearConsole();
         System.out.println("\n--- Student Login ---");
         System.out.print("Enter your roll number to login: ");
         String rollNumber = scanner.nextLine();
         currentStudent = dataManager.getStudent(rollNumber);
 
         if (currentStudent != null) {
+            ConsoleUtils.clearConsole();
             System.out.println("Login successful! Welcome, " + currentStudent.getName());
             showMenu();
         } else {
-            System.out.println("Student not found. Please try again.");
+            System.out.println("Student roll number doesn't exist. Please try again.");
+            System.out.print("Press Enter to continue...");
+            scanner.nextLine();
         }
     }
 
     public void showMenu() {
         boolean running = true;
         while (running) {
+            ConsoleUtils.clearConsole();
             System.out.println("\n--- Student Panel ---");
+            System.out.println("Welcome, " + currentStudent.getName() + "!");
             System.out.println("1. View Personal Details");
             System.out.println("2. Request Leave");
             System.out.println("3. Check Leave Status");
@@ -55,26 +62,33 @@ public class StudentPanel {
 
             switch (choice) {
                 case 1:
+                    ConsoleUtils.clearConsole();
                     viewPersonalDetails();
                     break;
                 case 2:
+                    ConsoleUtils.clearConsole();
                     requestLeave();
                     break;
                 case 3:
+                    ConsoleUtils.clearConsole();
                     checkLeaveStatus();
                     break;
                 case 4:
+                    ConsoleUtils.clearConsole();
                     markAttendance();
                     break;
                 case 5:
+                    ConsoleUtils.clearConsole();
                     raiseComplaint();
                     break;
                 case 6:
+                    ConsoleUtils.clearConsole();
                     participateInPolls();
                     break;
                 case 7:
                     currentStudent = null;
                     running = false;
+                    ConsoleUtils.clearConsole();
                     System.out.println("Logged out successfully.");
                     break;
                 default:
@@ -86,6 +100,8 @@ public class StudentPanel {
     private void viewPersonalDetails() {
         System.out.println("\n--- Your Personal Details ---");
         System.out.println(currentStudent);
+        System.out.print("Press Enter to continue...");
+        scanner.nextLine();
     }
 
     private void requestLeave() {
@@ -97,6 +113,8 @@ public class StudentPanel {
         dataManager.addLeaveRequest(request);
 
         System.out.println("Leave request submitted successfully!");
+        System.out.print("Press Enter to continue...");
+        scanner.nextLine();
     }
 
     private void checkLeaveStatus() {
@@ -114,6 +132,8 @@ public class StudentPanel {
         if (!found) {
             System.out.println("No leave requests found for you.");
         }
+        System.out.print("Press Enter to continue...");
+        scanner.nextLine();
     }
 
     private void markAttendance() {
@@ -137,11 +157,15 @@ public class StudentPanel {
                     record.markOutTime();
                     dataManager.updateAttendance(records);
                     System.out.println("Out-Time marked successfully!");
+                    System.out.print("Press Enter to continue...");
+                    scanner.nextLine();
                     return;
                 }
             }
             System.out.println("You have not marked your In-Time today.");
         }
+        System.out.print("Press Enter to continue...");
+        scanner.nextLine();
     }
 
     private void raiseComplaint() {
@@ -153,6 +177,8 @@ public class StudentPanel {
         dataManager.addComplaint(complaint);
 
         System.out.println("Complaint raised successfully!");
+        System.out.print("Press Enter to continue...");
+        scanner.nextLine();
     }
 
     private void participateInPolls() {
@@ -161,6 +187,8 @@ public class StudentPanel {
 
         if (allPolls.isEmpty()) {
             System.out.println("No polls available.");
+            System.out.print("Press Enter to continue...");
+            scanner.nextLine();
             return;
         }
 
@@ -178,11 +206,15 @@ public class StudentPanel {
         scanner.nextLine();
 
         if (pollChoice == 0) {
+            System.out.print("Press Enter to continue...");
+            scanner.nextLine();
             return;
         }
 
         if (pollChoice < 1 || pollChoice > allPolls.size()) {
             System.out.println("Invalid poll choice.");
+            System.out.print("Press Enter to continue...");
+            scanner.nextLine();
             return;
         }
 
@@ -192,6 +224,8 @@ public class StudentPanel {
         // Check if student has already voted
         if (dataManager.hasStudentVoted(pollId, currentStudent.getRollNumber())) {
             System.out.println("You have already voted in this poll.");
+            System.out.print("Press Enter to continue...");
+            scanner.nextLine();
             return;
         }
 
@@ -210,6 +244,8 @@ public class StudentPanel {
 
         if (voteChoice < 1 || voteChoice > options.size()) {
             System.out.println("Invalid choice.");
+            System.out.print("Press Enter to continue...");
+            scanner.nextLine();
             return;
         }
 
@@ -218,5 +254,7 @@ public class StudentPanel {
         dataManager.addVote(vote);
 
         System.out.println("Your vote has been recorded successfully!");
+        System.out.print("Press Enter to continue...");
+        scanner.nextLine();
     }
 }

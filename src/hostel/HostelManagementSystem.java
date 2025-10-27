@@ -3,6 +3,7 @@ package hostel;
 import hostel.data.DataManager;
 import hostel.panels.StudentPanel;
 import hostel.panels.WardenPanel;
+import hostel.utils.ConsoleUtils;
 
 import java.util.Scanner;
 
@@ -15,6 +16,7 @@ public class HostelManagementSystem {
 
         boolean running = true;
         while (running) {
+            ConsoleUtils.clearConsole();
             System.out.println("\n--- Welcome to the Hostel Management System! ---");
             System.out.println("1. Warden Panel");
             System.out.println("2. Student Panel");
@@ -26,12 +28,15 @@ public class HostelManagementSystem {
 
             switch (choice) {
                 case 1:
+                    ConsoleUtils.clearConsole();
                     wardenPanel.showMenu();
                     break;
                 case 2:
+                    ConsoleUtils.clearConsole();
                     studentPanel.login();
                     break;
                 case 3:
+                    ConsoleUtils.clearConsole();
                     running = false;
                     System.out.println("Thank you for using the system!");
                     break;
