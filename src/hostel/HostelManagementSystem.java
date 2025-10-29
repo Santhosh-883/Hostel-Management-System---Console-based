@@ -9,6 +9,17 @@ import java.util.Scanner;
 
 public class HostelManagementSystem {
     public static void main(String[] args) {
+        System.out.println("=== Hostel Management System ===");
+        System.out.println("Initializing database...");
+
+        System.out.println("Database initialized successfully!");
+        System.out.println();
+        try {
+            System.in.read();
+        } catch (Exception e) {
+            // Ignore
+        }
+
         DataManager dataManager = new DataManager();
         WardenPanel wardenPanel = new WardenPanel(dataManager);
         StudentPanel studentPanel = new StudentPanel(dataManager);

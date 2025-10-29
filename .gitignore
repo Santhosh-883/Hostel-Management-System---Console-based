@@ -12,3 +12,8 @@ data/*.txt
 # OS files
 .DS_Store
 Thumbs.db
+
+*.bat
+*.sh
+TestAuthentication.java
+
