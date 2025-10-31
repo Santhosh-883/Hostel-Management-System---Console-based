@@ -74,6 +74,8 @@ public class DatabaseManager {
                     "id INTEGER PRIMARY KEY AUTOINCREMENT," +
                     "student_roll_number TEXT NOT NULL," +
                     "reason TEXT NOT NULL," +
+                    "date TEXT NOT NULL," +
+                    "hour TEXT NOT NULL," +
                     "status TEXT DEFAULT 'Pending'," +
                     "created_date DATETIME DEFAULT CURRENT_TIMESTAMP," +
                     "FOREIGN KEY (student_roll_number) REFERENCES students(roll_number)" +

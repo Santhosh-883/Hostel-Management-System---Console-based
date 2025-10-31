@@ -39,6 +39,10 @@ public class Attendance {
         return outTime;
     }
 
+    public void setOutTime(String outTime) {
+        this.outTime = outTime;
+    }
+
     public void markOutTime() {
         this.outTime = new SimpleDateFormat("HH:mm:ss").format(new Date());
     }

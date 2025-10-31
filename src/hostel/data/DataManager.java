@@ -64,12 +64,14 @@ public class DataManager {
     }
 
     public void addLeaveRequest(LeaveRequest request) {
-        String sql = "INSERT INTO leave_requests (student_roll_number, reason, status) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO leave_requests (student_roll_number, reason, date, hour, status) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = dbManager.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, request.getStudentRollNumber());
             pstmt.setString(2, request.getReason());
-            pstmt.setString(3, request.getStatus());
+            pstmt.setString(3, request.getDate());
+            pstmt.setString(4, request.getHour());
+            pstmt.setString(5, request.getStatus());
             pstmt.executeUpdate();
             leaveRequests.add(request);
         } catch (SQLException e) {
@@ -124,14 +126,13 @@ public class DataManager {
         try (Connection conn = dbManager.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             for (Attendance record : records) {
-                if (!record.getOutTime().equals("Not Marked")) {
-                    pstmt.setString(1, record.getOutTime());
-                    pstmt.setString(2, record.getStudentRollNumber());
-                    pstmt.setString(3, record.getDate());
-                    pstmt.setString(4, record.getInTime());
-                    pstmt.executeUpdate();
-                }
+                pstmt.setString(1, record.getOutTime());
+                pstmt.setString(2, record.getStudentRollNumber());
+                pstmt.setString(3, record.getDate());
+                pstmt.setString(4, record.getInTime());
+                pstmt.addBatch();
             }
+            pstmt.executeBatch();
             // Reload data from database to reflect changes
             loadAttendance();
         } catch (SQLException e) {
@@ -326,14 +327,17 @@ public class DataManager {
     }
 
     private void loadLeaveRequests() {
-        String sql = "SELECT student_roll_number, reason, status FROM leave_requests";
+        String sql = "SELECT student_roll_number, reason, date, hour, status FROM leave_requests";
         try (Connection conn = dbManager.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
+            leaveRequests.clear(); // Clear the list before loading
             while (rs.next()) {
                 LeaveRequest request = new LeaveRequest(
                     rs.getString("student_roll_number"),
                     rs.getString("reason"),
+                    rs.getString("date"),
+                    rs.getString("hour"),
                     rs.getString("status")
                 );
                 leaveRequests.add(request);

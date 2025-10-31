@@ -1,14 +1,35 @@
 package hostel;
 
-import hostel.data.DataManager;
-import hostel.panels.StudentPanel;
-import hostel.panels.WardenPanel;
-import hostel.utils.ConsoleUtils;
+import hostel.gui.MainFrame;
+import javax.swing.SwingUtilities;
 
-import java.util.Scanner;
+//import hostel.data.DataManager;
+//import hostel.panels.StudentPanel;
+//import hostel.panels.WardenPanel;
+//import hostel.utils.ConsoleUtils;
+//import java.util.Scanner;
 
 public class HostelManagementSystem {
     public static void main(String[] args) {
+        // Set Nimbus Look and Feel for a modern UI
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            // If Nimbus is not available, the default L&F will be used.
+        }
+
+        // Launch the Swing UI
+        SwingUtilities.invokeLater(() -> {
+            MainFrame frame = new MainFrame();
+            frame.setVisible(true);
+        });
+
+        /*
         System.out.println("=== Hostel Management System ===");
         System.out.println("Initializing database...");
 
@@ -56,5 +77,7 @@ public class HostelManagementSystem {
             }
         }
         scanner.close();
+        */
     }
 }
+

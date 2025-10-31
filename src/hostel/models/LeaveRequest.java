@@ -3,17 +3,23 @@ package hostel.models;
 public class LeaveRequest {
     private String studentRollNumber;
     private String reason;
+    private String date;
+    private String hour;
     private String status;
 
-    public LeaveRequest(String studentRollNumber, String reason) {
+    public LeaveRequest(String studentRollNumber, String reason, String date, String hour) {
         this.studentRollNumber = studentRollNumber;
         this.reason = reason;
+        this.date = date;
+        this.hour = hour;
         this.status = "Pending";
     }
 
-    public LeaveRequest(String studentRollNumber, String reason, String status) {
+    public LeaveRequest(String studentRollNumber, String reason, String date, String hour, String status) {
         this.studentRollNumber = studentRollNumber;
         this.reason = reason;
+        this.date = date;
+        this.hour = hour;
         this.status = status;
     }
 
@@ -23,6 +29,14 @@ public class LeaveRequest {
 
     public String getReason() {
         return reason;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public String getHour() {
+        return hour;
     }
 
     public String getStatus() {
@@ -35,6 +49,6 @@ public class LeaveRequest {
 
     @Override
     public String toString() {
-        return "Roll Number: " + studentRollNumber + ", Reason: " + reason + ", Status: " + status;
+        return "Roll Number: " + studentRollNumber + ", Reason: " + reason + ", Date: " + date + ", Hour: " + hour + ", Status: " + status;
     }
 }
