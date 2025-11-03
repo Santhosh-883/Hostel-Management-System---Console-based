@@ -39,6 +39,10 @@ public class Attendance {
         return outTime;
     }
 
+    public void setInTime(String inTime) {
+        this.inTime = inTime;
+    }
+
     public void setOutTime(String outTime) {
         this.outTime = outTime;
     }

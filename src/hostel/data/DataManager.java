@@ -3,6 +3,7 @@ package hostel.data;
 import hostel.models.Attendance;
 import hostel.models.Complaint;
 import hostel.models.LeaveRequest;
+import hostel.models.Notification;
 import hostel.models.Poll;
 import hostel.models.Student;
 import hostel.models.Vote;
@@ -26,6 +27,7 @@ public class DataManager {
     private Map<String, Warden> wardens;
     private Map<String, Poll> polls;
     private List<Vote> votes;
+    private List<Notification> notifications;
     private DatabaseManager dbManager;
 
     public DataManager() {
@@ -37,6 +39,7 @@ public class DataManager {
         wardens = new HashMap<>();
         polls = new HashMap<>();
         votes = new ArrayList<>();
+        notifications = new ArrayList<>();
         loadAllData();
     }
 
@@ -55,6 +58,27 @@ public class DataManager {
         }
     }
 
+    private void loadNotifications() {
+        String sql = "SELECT id, recipient_roll_number, message, timestamp, read FROM notifications";
+        try (Connection conn = dbManager.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            notifications.clear();
+            while (rs.next()) {
+                Notification notification = new Notification(
+                        rs.getInt("id"),
+                        rs.getString("recipient_roll_number"),
+                        rs.getString("message"),
+                        rs.getString("timestamp"),
+                        rs.getInt("read") == 1
+                );
+                notifications.add(notification);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error loading notifications: " + e.getMessage());
+        }
+    }
+
     public Student getStudent(String rollNumber) {
         return students.get(rollNumber);
     }
@@ -64,14 +88,15 @@ public class DataManager {
     }
 
     public void addLeaveRequest(LeaveRequest request) {
-        String sql = "INSERT INTO leave_requests (student_roll_number, reason, date, hour, status) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO leave_requests (student_roll_number, reason, from_date, to_date, hour, status) VALUES (?, ?, ?, ?, ?, ?)";
         try (Connection conn = dbManager.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, request.getStudentRollNumber());
             pstmt.setString(2, request.getReason());
-            pstmt.setString(3, request.getDate());
-            pstmt.setString(4, request.getHour());
-            pstmt.setString(5, request.getStatus());
+            pstmt.setString(3, request.getFromDate());
+            pstmt.setString(4, request.getToDate());
+            pstmt.setString(5, request.getHour());
+            pstmt.setString(6, request.getStatus());
             pstmt.executeUpdate();
             leaveRequests.add(request);
         } catch (SQLException e) {
@@ -208,6 +233,111 @@ public class DataManager {
         return polls;
     }
 
+    public void addNotification(Notification notification) {
+        String sql = "INSERT INTO notifications (recipient_roll_number, message, timestamp, read) VALUES (?, ?, ?, ?)";
+        try (Connection conn = dbManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, notification.getRecipientRollNumber());
+            pstmt.setString(2, notification.getMessage());
+            pstmt.setString(3, notification.getTimestamp());
+            pstmt.setInt(4, notification.isRead() ? 1 : 0);
+            pstmt.executeUpdate();
+            loadNotifications();
+        } catch (SQLException e) {
+            System.err.println("Error adding notification: " + e.getMessage());
+        }
+    }
+
+    public void addNotificationForStudent(String rollNumber, String message) {
+        addNotification(new Notification(rollNumber, message));
+    }
+
+    public void addNotificationForAllStudents(String message) {
+        for (String rollNumber : students.keySet()) {
+            addNotificationForStudent(rollNumber, message);
+        }
+    }
+
+    public List<Notification> getNotificationsForStudent(String rollNumber) {
+        List<Notification> studentNotifications = new ArrayList<>();
+        for (Notification notification : notifications) {
+            if (notification.getRecipientRollNumber().equals(rollNumber)) {
+                studentNotifications.add(notification);
+            }
+        }
+        studentNotifications.sort((a, b) -> b.getTimestamp().compareTo(a.getTimestamp()));
+        return studentNotifications;
+    }
+
+    public long getUnreadNotificationCount(String rollNumber) {
+        return notifications.stream()
+                .filter(n -> n.getRecipientRollNumber().equals(rollNumber) && !n.isRead())
+                .count();
+    }
+
+    public void markNotificationAsRead(int notificationId) {
+        String sql = "UPDATE notifications SET read = 1 WHERE id = ?";
+        try (Connection conn = dbManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, notificationId);
+            pstmt.executeUpdate();
+            loadNotifications();
+        } catch (SQLException e) {
+            System.err.println("Error marking notification as read: " + e.getMessage());
+        }
+    }
+
+    public void clearNotificationsForStudent(String rollNumber) {
+        String sql = "DELETE FROM notifications WHERE recipient_roll_number = ?";
+        try (Connection conn = dbManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, rollNumber);
+            pstmt.executeUpdate();
+            loadNotifications();
+        } catch (SQLException e) {
+            System.err.println("Error clearing notifications: " + e.getMessage());
+        }
+    }
+
+    public void saveRememberMe(String userType, String identifier) {
+        String sql = "INSERT OR REPLACE INTO remember_me (user_type, identifier) VALUES (?, ?)";
+        try (Connection conn = dbManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, userType);
+            pstmt.setString(2, identifier);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.err.println("Error saving remember me data: " + e.getMessage());
+        }
+    }
+
+    public void clearRememberMe(String userType) {
+        String sql = "DELETE FROM remember_me WHERE user_type = ?";
+        try (Connection conn = dbManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, userType);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.err.println("Error clearing remember me data: " + e.getMessage());
+        }
+    }
+
+    public String getRememberedIdentifier(String userType) {
+        String sql = "SELECT identifier FROM remember_me WHERE user_type = ?";
+        try (Connection conn = dbManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, userType);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("identifier");
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error retrieving remember me data: " + e.getMessage());
+        }
+        return null;
+    }
+
     public void addVote(Vote vote) {
         String sql = "INSERT INTO votes (poll_id, student_roll_number, selected_option) VALUES (?, ?, ?)";
         try (Connection conn = dbManager.getConnection();
@@ -270,6 +400,7 @@ public class DataManager {
         loadAttendance();
         loadPolls();
         loadVotes();
+        loadNotifications();
     }
 
     private void loadStudents() {
@@ -327,7 +458,7 @@ public class DataManager {
     }
 
     private void loadLeaveRequests() {
-        String sql = "SELECT student_roll_number, reason, date, hour, status FROM leave_requests";
+        String sql = "SELECT student_roll_number, reason, from_date, to_date, hour, status FROM leave_requests";
         try (Connection conn = dbManager.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
@@ -336,7 +467,8 @@ public class DataManager {
                 LeaveRequest request = new LeaveRequest(
                     rs.getString("student_roll_number"),
                     rs.getString("reason"),
-                    rs.getString("date"),
+                    rs.getString("from_date"),
+                    rs.getString("to_date"),
                     rs.getString("hour"),
                     rs.getString("status")
                 );
@@ -352,6 +484,7 @@ public class DataManager {
         try (Connection conn = dbManager.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
+            attendanceRecords.clear();
             while (rs.next()) {
                 Attendance attendance = new Attendance(
                     rs.getString("student_roll_number"),

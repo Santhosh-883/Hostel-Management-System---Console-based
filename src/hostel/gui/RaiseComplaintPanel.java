@@ -56,6 +56,7 @@ public class RaiseComplaintPanel extends JPanel {
 
         Complaint complaint = new Complaint(student.getRollNumber(), description);
         dataManager.addComplaint(complaint);
+        dataManager.addNotificationForStudent("warden", "New complaint from " + student.getRollNumber());
 
         JOptionPane.showMessageDialog(this, "Complaint submitted successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
 

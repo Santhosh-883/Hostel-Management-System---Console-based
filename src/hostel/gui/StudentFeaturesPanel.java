@@ -8,10 +8,17 @@ import java.awt.*;
 
 public class StudentFeaturesPanel extends JPanel {
 
-    private CardLayout cardLayout;
-    private JPanel mainPanel;
+    private final DataManager dataManager;
+    private final Student student;
+    private final JButton notificationsButton;
+    private final StudentNotificationsPanel notificationsPanel;
+    private final CardLayout cardLayout;
+    private final JPanel mainPanel;
 
     public StudentFeaturesPanel(DataManager dataManager, Student student, Runnable onLogout) {
+        this.dataManager = dataManager;
+        this.student = student;
+
         cardLayout = new CardLayout();
         mainPanel = new JPanel(cardLayout);
         setLayout(new BorderLayout());
@@ -30,7 +37,7 @@ public class StudentFeaturesPanel extends JPanel {
         titlePanel.add(welcomeLabel);
         featuresView.add(titlePanel, BorderLayout.NORTH);
 
-        JPanel featuresPanel = new JPanel(new GridLayout(4, 2, 10, 10));
+        JPanel featuresPanel = new JPanel(new GridLayout(5, 2, 10, 10));
         featuresPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         JButton viewDetailsButton = new JButton("1. View Personal Details");
@@ -45,53 +52,33 @@ public class StudentFeaturesPanel extends JPanel {
         featuresPanel.add(raiseComplaintButton);
         JButton participateInPollsButton = new JButton("6. Participate in Polls");
         featuresPanel.add(participateInPollsButton);
+        notificationsButton = new JButton();
+        featuresPanel.add(notificationsButton);
 
-        JButton logoutButton = new JButton("7. Logout");
+        JButton logoutButton = new JButton("8. Logout");
         featuresPanel.add(logoutButton);
 
         featuresView.add(featuresPanel, BorderLayout.CENTER);
 
         // --- Request Leave Panel --- //
-        RequestLeavePanel requestLeavePanel = new RequestLeavePanel(dataManager, student, () -> {
-            cardLayout.show(mainPanel, "features");
-            mainPanel.revalidate();
-            mainPanel.repaint();
-        });
+        RequestLeavePanel requestLeavePanel = new RequestLeavePanel(dataManager, student, this::showFeatures);
 
         // --- View Personal Details Panel --- //
-        ViewPersonalDetailsPanel viewDetailsPanel = new ViewPersonalDetailsPanel(student, () -> {
-            cardLayout.show(mainPanel, "features");
-            mainPanel.revalidate();
-            mainPanel.repaint();
-        });
+        ViewPersonalDetailsPanel viewDetailsPanel = new ViewPersonalDetailsPanel(student, this::showFeatures);
 
         // --- Check Leave Status Panel --- //
-        CheckLeaveStatusPanel checkLeaveStatusPanel = new CheckLeaveStatusPanel(dataManager, student, () -> {
-            cardLayout.show(mainPanel, "features");
-            mainPanel.revalidate();
-            mainPanel.repaint();
-        });
+        CheckLeaveStatusPanel checkLeaveStatusPanel = new CheckLeaveStatusPanel(dataManager, student, this::showFeatures);
 
         // --- Mark Attendance Panel --- //
-        MarkAttendancePanel markAttendancePanel = new MarkAttendancePanel(dataManager, student, () -> {
-            cardLayout.show(mainPanel, "features");
-            mainPanel.revalidate();
-            mainPanel.repaint();
-        });
+        MarkAttendancePanel markAttendancePanel = new MarkAttendancePanel(dataManager, student, this::showFeatures);
 
         // --- Raise Complaint Panel --- //
-        RaiseComplaintPanel raiseComplaintPanel = new RaiseComplaintPanel(dataManager, student, () -> {
-            cardLayout.show(mainPanel, "features");
-            mainPanel.revalidate();
-            mainPanel.repaint();
-        });
+        RaiseComplaintPanel raiseComplaintPanel = new RaiseComplaintPanel(dataManager, student, this::showFeatures);
 
         // --- Participate in Polls Panel --- //
-        ParticipateInPollsPanel participateInPollsPanel = new ParticipateInPollsPanel(dataManager, student, () -> {
-            cardLayout.show(mainPanel, "features");
-            mainPanel.revalidate();
-            mainPanel.repaint();
-        });
+        ParticipateInPollsPanel participateInPollsPanel = new ParticipateInPollsPanel(dataManager, student, this::showFeatures);
+
+        notificationsPanel = new StudentNotificationsPanel(dataManager, student, this::showFeatures, this::updateNotificationsButtonText);
 
         mainPanel.add(featuresView, "features");
         mainPanel.add(requestLeavePanel, "requestLeave");
@@ -100,6 +87,7 @@ public class StudentFeaturesPanel extends JPanel {
         mainPanel.add(markAttendancePanel, "markAttendance");
         mainPanel.add(raiseComplaintPanel, "raiseComplaint");
         mainPanel.add(participateInPollsPanel, "participateInPolls");
+        mainPanel.add(notificationsPanel, "notifications");
 
         add(mainPanel, BorderLayout.CENTER);
 
@@ -135,8 +123,31 @@ public class StudentFeaturesPanel extends JPanel {
             mainPanel.revalidate();
             mainPanel.repaint();
         });
+        notificationsButton.addActionListener(e -> {
+            notificationsPanel.refreshNotifications();
+            cardLayout.show(mainPanel, "notifications");
+            mainPanel.revalidate();
+            mainPanel.repaint();
+        });
 
+        updateNotificationsButtonText();
+        showFeatures();
+    }
+
+    private void updateNotificationsButtonText() {
+        long unread = dataManager.getUnreadNotificationCount(student.getRollNumber());
+        if (unread > 0) {
+            notificationsButton.setText("7. Notifications (" + unread + " new)");
+        } else {
+            notificationsButton.setText("7. Notifications");
+        }
+    }
+
+    private void showFeatures() {
+        updateNotificationsButtonText();
         cardLayout.show(mainPanel, "features");
+        mainPanel.revalidate();
+        mainPanel.repaint();
     }
 }
 

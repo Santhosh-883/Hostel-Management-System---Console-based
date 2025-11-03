@@ -7,15 +7,18 @@ import java.awt.*;
 
 public class WardenFeaturesPanel extends JPanel {
 
-    private CardLayout cardLayout;
-    private JPanel mainPanel;
+    private final DataManager dataManager;
+    private final JButton notificationsButton;
+    private final WardenNotificationsPanel notificationsPanel;
+    private final CardLayout cardLayout;
+    private final JPanel mainPanel;
 
     public WardenFeaturesPanel(DataManager dataManager, String wardenName, Runnable onLogout) {
+        this.dataManager = dataManager;
         cardLayout = new CardLayout();
         mainPanel = new JPanel(cardLayout);
         setLayout(new BorderLayout());
 
-        // --- Main Features Panel --- //
         JPanel featuresView = new JPanel(new BorderLayout());
 
         JLabel titleLabel = new JLabel("--- Warden Panel ---", SwingConstants.CENTER);
@@ -50,137 +53,75 @@ public class WardenFeaturesPanel extends JPanel {
         featuresPanel.add(createPollButton);
         JButton viewPollResultsButton = new JButton("9. View Poll Results");
         featuresPanel.add(viewPollResultsButton);
-        
+
+        notificationsButton = new JButton();
+        featuresPanel.add(notificationsButton);
+
         JButton logoutButton = new JButton("10. Logout");
         featuresPanel.add(logoutButton);
 
         featuresView.add(featuresPanel, BorderLayout.CENTER);
 
-        // --- Add Student Panel --- //
-        AddStudentPanel addStudentPanel = new AddStudentPanel(dataManager, () -> {
-            cardLayout.show(mainPanel, "features");
-            mainPanel.revalidate();
-            mainPanel.repaint();
-        });
-
-        // --- View All Students Panel --- //
-        ViewAllStudentsPanel viewAllStudentsPanel = new ViewAllStudentsPanel(dataManager, () -> {
-            cardLayout.show(mainPanel, "features");
-            mainPanel.revalidate();
-            mainPanel.repaint();
-        });
-
-        // --- Manage Leave Requests Panel --- //
-        ManageLeaveRequestsPanel manageLeaveRequestsPanel = new ManageLeaveRequestsPanel(dataManager, () -> {
-            cardLayout.show(mainPanel, "features");
-            mainPanel.revalidate();
-            mainPanel.repaint();
-        });
-
-        // --- View Students by Room Panel --- //
-        ViewStudentsByRoomPanel viewStudentsByRoomPanel = new ViewStudentsByRoomPanel(dataManager, () -> {
-            cardLayout.show(mainPanel, "features");
-            mainPanel.revalidate();
-            mainPanel.repaint();
-        });
-
-        // --- View Attendance Records Panel --- //
-        ViewAttendanceRecordsPanel viewAttendanceRecordsPanel = new ViewAttendanceRecordsPanel(dataManager, () -> {
-            cardLayout.show(mainPanel, "features");
-            mainPanel.revalidate();
-            mainPanel.repaint();
-        });
-
-        // --- View Complaints Panel --- //
-        ViewComplaintsPanel viewComplaintsPanel = new ViewComplaintsPanel(dataManager, () -> {
-            cardLayout.show(mainPanel, "features");
-            mainPanel.revalidate();
-            mainPanel.repaint();
-        });
-
-        // --- Create Poll Panel --- //
-        CreatePollPanel createPollPanel = new CreatePollPanel(dataManager, () -> {
-            cardLayout.show(mainPanel, "features");
-            mainPanel.revalidate();
-            mainPanel.repaint();
-        });
-
-        // --- View Poll Results Panel --- //
-        ViewPollResultsPanel viewPollResultsPanel = new ViewPollResultsPanel(dataManager, () -> {
-            cardLayout.show(mainPanel, "features");
-            mainPanel.revalidate();
-            mainPanel.repaint();
-        });
-
-        // --- Daily Attendance Report Panel --- //
-        DailyAttendanceReportPanel dailyAttendanceReportPanel = new DailyAttendanceReportPanel(dataManager, () -> {
-            cardLayout.show(mainPanel, "features");
-            mainPanel.revalidate();
-            mainPanel.repaint();
-        });
+        // Panels for each feature
+        AddStudentPanel addStudentPanel = new AddStudentPanel(dataManager, this::showFeatures);
+        ViewAllStudentsPanel viewAllStudentsPanel = new ViewAllStudentsPanel(dataManager, this::showFeatures);
+        ViewStudentsByRoomPanel viewStudentsByRoomPanel = new ViewStudentsByRoomPanel(dataManager, this::showFeatures);
+        ManageLeaveRequestsPanel manageLeaveRequestsPanel = new ManageLeaveRequestsPanel(dataManager, this::showFeatures);
+        ViewAttendanceRecordsPanel viewAttendanceRecordsPanel = new ViewAttendanceRecordsPanel(dataManager, this::showFeatures);
+        ViewComplaintsPanel viewComplaintsPanel = new ViewComplaintsPanel(dataManager, this::showFeatures);
+        DailyAttendanceReportPanel dailyAttendanceReportPanel = new DailyAttendanceReportPanel(dataManager, this::showFeatures);
+        CreatePollPanel createPollPanel = new CreatePollPanel(dataManager, this::showFeatures);
+        ViewPollResultsPanel viewPollResultsPanel = new ViewPollResultsPanel(dataManager, this::showFeatures);
+        notificationsPanel = new WardenNotificationsPanel(dataManager, this::showFeatures);
 
         mainPanel.add(featuresView, "features");
         mainPanel.add(addStudentPanel, "addStudent");
         mainPanel.add(viewAllStudentsPanel, "viewAllStudents");
-        mainPanel.add(manageLeaveRequestsPanel, "manageLeaveRequests");
         mainPanel.add(viewStudentsByRoomPanel, "viewStudentsByRoom");
+        mainPanel.add(manageLeaveRequestsPanel, "manageLeaveRequests");
         mainPanel.add(viewAttendanceRecordsPanel, "viewAttendanceRecords");
         mainPanel.add(viewComplaintsPanel, "viewComplaints");
+        mainPanel.add(dailyAttendanceReportPanel, "dailyAttendanceReport");
         mainPanel.add(createPollPanel, "createPoll");
         mainPanel.add(viewPollResultsPanel, "viewPollResults");
-        mainPanel.add(dailyAttendanceReportPanel, "dailyAttendanceReport");
+        mainPanel.add(notificationsPanel, "notifications");
 
         add(mainPanel, BorderLayout.CENTER);
 
         // Action Listeners
+        addStudentButton.addActionListener(e -> showPanel("addStudent"));
+        viewAllStudentsButton.addActionListener(e -> showPanel("viewAllStudents"));
+        viewStudentsByRoomButton.addActionListener(e -> showPanel("viewStudentsByRoom"));
+        manageLeaveRequestsButton.addActionListener(e -> showPanel("manageLeaveRequests"));
+        viewAttendanceRecordsButton.addActionListener(e -> showPanel("viewAttendanceRecords"));
+        viewComplaintsButton.addActionListener(e -> showPanel("viewComplaints"));
+        dailyAttendanceReportButton.addActionListener(e -> showPanel("dailyAttendanceReport"));
+        createPollButton.addActionListener(e -> showPanel("createPoll"));
+        viewPollResultsButton.addActionListener(e -> showPanel("viewPollResults"));
+        notificationsButton.addActionListener(e -> {
+            notificationsPanel.refreshNotifications();
+            showPanel("notifications");
+        });
         logoutButton.addActionListener(e -> onLogout.run());
-        addStudentButton.addActionListener(e -> {
-            cardLayout.show(mainPanel, "addStudent");
-            mainPanel.revalidate();
-            mainPanel.repaint();
-        });
-        viewAllStudentsButton.addActionListener(e -> {
-            cardLayout.show(mainPanel, "viewAllStudents");
-            mainPanel.revalidate();
-            mainPanel.repaint();
-        });
-        manageLeaveRequestsButton.addActionListener(e -> {
-            cardLayout.show(mainPanel, "manageLeaveRequests");
-            mainPanel.revalidate();
-            mainPanel.repaint();
-        });
-        viewStudentsByRoomButton.addActionListener(e -> {
-            cardLayout.show(mainPanel, "viewStudentsByRoom");
-            mainPanel.revalidate();
-            mainPanel.repaint();
-        });
-        viewAttendanceRecordsButton.addActionListener(e -> {
-            cardLayout.show(mainPanel, "viewAttendanceRecords");
-            mainPanel.revalidate();
-            mainPanel.repaint();
-        });
-        viewComplaintsButton.addActionListener(e -> {
-            cardLayout.show(mainPanel, "viewComplaints");
-            mainPanel.revalidate();
-            mainPanel.repaint();
-        });
-        createPollButton.addActionListener(e -> {
-            cardLayout.show(mainPanel, "createPoll");
-            mainPanel.revalidate();
-            mainPanel.repaint();
-        });
-        viewPollResultsButton.addActionListener(e -> {
-            cardLayout.show(mainPanel, "viewPollResults");
-            mainPanel.revalidate();
-            mainPanel.repaint();
-        });
-        dailyAttendanceReportButton.addActionListener(e -> {
-            cardLayout.show(mainPanel, "dailyAttendanceReport");
-            mainPanel.revalidate();
-            mainPanel.repaint();
-        });
 
+        showFeatures();
+    }
+
+    private void showPanel(String panelName) {
+        cardLayout.show(mainPanel, panelName);
+    }
+
+    private void showFeatures() {
+        updateNotificationsButtonText();
         cardLayout.show(mainPanel, "features");
     }
-}
 
+    private void updateNotificationsButtonText() {
+        long unread = dataManager.getUnreadNotificationCount("warden");
+        if (unread > 0) {
+            notificationsButton.setText("10. Notifications (" + unread + " new)");
+        } else {
+            notificationsButton.setText("10. Notifications");
+        }
+    }
+}

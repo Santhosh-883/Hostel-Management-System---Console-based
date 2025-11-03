@@ -27,7 +27,7 @@ public class CheckLeaveStatusPanel extends JPanel {
         add(titleLabel, BorderLayout.NORTH);
 
         // Table
-        String[] columnNames = {"Reason", "Date", "Hour", "Status"};
+        String[] columnNames = {"Reason", "From Date", "To Date", "Hour", "Status"};
         tableModel = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -64,7 +64,8 @@ public class CheckLeaveStatusPanel extends JPanel {
             if (request.getStudentRollNumber().equals(student.getRollNumber())) {
                 Object[] row = {
                         request.getReason(),
-                        request.getDate(),
+                        request.getFromDate(),
+                        request.getToDate(),
                         request.getHour(),
                         request.getStatus()
                 };

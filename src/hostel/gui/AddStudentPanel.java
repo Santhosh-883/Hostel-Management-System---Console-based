@@ -37,8 +37,11 @@ public class AddStudentPanel extends JPanel {
         formPanel.add(roomNumberField);
 
         formPanel.add(new JLabel("Phone Number:"));
+        JPanel phonePanel = new JPanel(new BorderLayout(5, 0));
+        phonePanel.add(new JLabel("+91"), BorderLayout.WEST);
         phoneNumberField = new JTextField();
-        formPanel.add(phoneNumberField);
+        phonePanel.add(phoneNumberField, BorderLayout.CENTER);
+        formPanel.add(phonePanel);
 
         JButton addButton = new JButton("Add Student");
         JButton backButton = new JButton("Back");
@@ -63,7 +66,15 @@ public class AddStudentPanel extends JPanel {
             return;
         }
 
-        Student student = new Student(name, rollNumber, roomNumber, phoneNumber);
+        // Phone number validation
+        if (!phoneNumber.matches("\\d{10}")) {
+            JOptionPane.showMessageDialog(this, "Phone number must be exactly 10 digits.", "Validation Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        String fullPhoneNumber = "+91" + phoneNumber;
+
+        Student student = new Student(name, rollNumber, roomNumber, fullPhoneNumber);
         dataManager.addStudent(student);
 
         JOptionPane.showMessageDialog(this, "Student added successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);

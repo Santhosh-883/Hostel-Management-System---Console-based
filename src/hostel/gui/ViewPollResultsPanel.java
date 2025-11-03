@@ -33,7 +33,7 @@ public class ViewPollResultsPanel extends JPanel {
         add(selectionPanel, BorderLayout.NORTH);
 
         // Results Table
-        String[] columnNames = {"Option", "Votes"};
+        String[] columnNames = {"Option", "Votes", "Percentage"};
         tableModel = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -80,8 +80,14 @@ public class ViewPollResultsPanel extends JPanel {
         String pollId = selectedPollStr.split(" - ")[0];
         Map<String, Integer> results = dataManager.getPollResults(pollId);
 
+        int totalVotes = 0;
+        for (int votes : results.values()) {
+            totalVotes += votes;
+        }
+
         for (Map.Entry<String, Integer> entry : results.entrySet()) {
-            Object[] row = {entry.getKey(), entry.getValue()};
+            double percentage = (totalVotes == 0) ? 0 : ((double) entry.getValue() / totalVotes) * 100;
+            Object[] row = {entry.getKey(), entry.getValue(), String.format("%.2f%%", percentage)};
             tableModel.addRow(row);
         }
     }

@@ -74,7 +74,8 @@ public class DatabaseManager {
                     "id INTEGER PRIMARY KEY AUTOINCREMENT," +
                     "student_roll_number TEXT NOT NULL," +
                     "reason TEXT NOT NULL," +
-                    "date TEXT NOT NULL," +
+                    "from_date TEXT NOT NULL," +
+                    "to_date TEXT," +
                     "hour TEXT NOT NULL," +
                     "status TEXT DEFAULT 'Pending'," +
                     "created_date DATETIME DEFAULT CURRENT_TIMESTAMP," +
@@ -112,6 +113,22 @@ public class DatabaseManager {
                     "FOREIGN KEY (poll_id) REFERENCES polls(poll_id)," +
                     "FOREIGN KEY (student_roll_number) REFERENCES students(roll_number)," +
                     "UNIQUE(poll_id, student_roll_number)" +
+                    ")");
+
+            // Notifications table
+            stmt.execute("CREATE TABLE IF NOT EXISTS notifications (" +
+                    "id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                    "recipient_roll_number TEXT NOT NULL," +
+                    "message TEXT NOT NULL," +
+                    "timestamp TEXT NOT NULL," +
+                    "read INTEGER DEFAULT 0," +
+                    "FOREIGN KEY (recipient_roll_number) REFERENCES students(roll_number)" +
+                    ")");
+
+            // Remember me table
+            stmt.execute("CREATE TABLE IF NOT EXISTS remember_me (" +
+                    "user_type TEXT PRIMARY KEY," +
+                    "identifier TEXT NOT NULL" +
                     ")");
 
             // Insert default warden if not exists
