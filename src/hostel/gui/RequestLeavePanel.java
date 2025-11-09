@@ -9,6 +9,8 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.text.SimpleDateFormat;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -29,6 +31,8 @@ public class RequestLeavePanel extends JPanel {
     private JTextField leaveReasonField;
     private JTextArea leaveDescriptionArea;
     private JLabel charCountLabel;
+    private Timer timer;
+    private final Calendar[] cutoffTimes = new Calendar[8];
 
     public RequestLeavePanel(DataManager dataManager, Student student, Runnable onBack) {
         this.dataManager = dataManager;
@@ -116,7 +120,7 @@ public class RequestLeavePanel extends JPanel {
         gbc.anchor = GridBagConstraints.WEST;
         JPanel sessionPanel = new JPanel(new GridLayout(0, 3, 10, 5));
         sessionCheckBoxes = new ArrayList<>();
-        String[] hourLabels = {"1st Hour", "2nd Hour", "3rd Hour", "4th Hour", "5th Hour", "6th Hour", "7th Hour", "8th Hour", "9th Hour"};
+        String[] hourLabels = {"1st Hour", "2nd Hour", "3rd Hour", "4th Hour", "5th Hour", "6th Hour", "7th Hour", "8th Hour"};
         for (String label : hourLabels) {
             JCheckBox checkBox = new JCheckBox(label);
             sessionCheckBoxes.add(checkBox);
@@ -171,7 +175,14 @@ public class RequestLeavePanel extends JPanel {
         submitButton.addActionListener(e -> submitRequest());
         backButton.addActionListener(e -> onBack.run());
 
+        // Add listener to date chooser to check if it's today
+        fromDateChooser.addPropertyChangeListener("date", evt -> updateHourCheckboxes());
+
+        initializeCutoffTimes();
+        setupTimer();
+
         toggleToDateVisibility(); // Set initial state
+        updateHourCheckboxes(); // Set initial state for checkboxes
 
         leaveDescriptionArea.getDocument().addDocumentListener(new DocumentListener() {
             @Override
@@ -284,5 +295,57 @@ public class RequestLeavePanel extends JPanel {
         leaveReasonField.setText("");
         leaveDescriptionArea.setText("");
         singleDayRadioButton.setSelected(true);
+    }
+
+    private void initializeCutoffTimes() {
+        int[] hours = {9, 10, 11, 12, 14, 15, 16, 18};
+        int[] minutes = {35, 25, 35, 25, 20, 5, 15, 30};
+
+        for (int i = 0; i < 8; i++) {
+            cutoffTimes[i] = Calendar.getInstance();
+            cutoffTimes[i].set(Calendar.HOUR_OF_DAY, hours[i]);
+            cutoffTimes[i].set(Calendar.MINUTE, minutes[i]);
+            cutoffTimes[i].set(Calendar.SECOND, 0);
+            cutoffTimes[i].set(Calendar.MILLISECOND, 0);
+        }
+    }
+
+    private void setupTimer() {
+        timer = new Timer(60000, e -> updateHourCheckboxes()); // Check every minute
+        timer.start();
+    }
+
+    private void updateHourCheckboxes() {
+        Date selectedDate = fromDateChooser.getDate();
+        if (selectedDate == null) {
+            for (JCheckBox checkBox : sessionCheckBoxes) {
+                checkBox.setEnabled(true); // Enable all if no date is selected
+            }
+            return;
+        }
+
+        Calendar today = Calendar.getInstance();
+        Calendar selectedCal = Calendar.getInstance();
+        selectedCal.setTime(selectedDate);
+
+        boolean isToday = today.get(Calendar.YEAR) == selectedCal.get(Calendar.YEAR) &&
+                        today.get(Calendar.DAY_OF_YEAR) == selectedCal.get(Calendar.DAY_OF_YEAR);
+
+        if (isToday) {
+            Calendar now = Calendar.getInstance();
+            for (int i = 0; i < sessionCheckBoxes.size(); i++) {
+                if (now.after(cutoffTimes[i])) {
+                    sessionCheckBoxes.get(i).setEnabled(false);
+                    sessionCheckBoxes.get(i).setSelected(false); // Unselect if disabled
+                } else {
+                    sessionCheckBoxes.get(i).setEnabled(true);
+                }
+            }
+        } else {
+            // If not today (i.e., a future date), enable all checkboxes
+            for (JCheckBox checkBox : sessionCheckBoxes) {
+                checkBox.setEnabled(true);
+            }
+        }
     }
 }

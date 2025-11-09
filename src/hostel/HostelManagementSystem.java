@@ -12,16 +12,16 @@ import javax.swing.SwingUtilities;
 public class HostelManagementSystem {
     public static void main(String[] args) {
         // Set Nimbus Look and Feel for a modern UI
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (Exception e) {
-            // If Nimbus is not available, the default L&F will be used.
-        }
+        // try {
+        //     for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+        //         if ("Nimbus".equals(info.getName())) {
+        //             javax.swing.UIManager.setLookAndFeel(info.getClassName());
+        //             break;
+        //         }
+        //     }
+        // } catch (Exception e) {
+        //     // If Nimbus is not available, the default L&F will be used.
+        // }
 
         // Launch the Swing UI
         SwingUtilities.invokeLater(() -> {

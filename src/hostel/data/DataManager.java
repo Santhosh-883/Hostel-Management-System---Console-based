@@ -59,7 +59,7 @@ public class DataManager {
     }
 
     private void loadNotifications() {
-        String sql = "SELECT id, recipient_roll_number, message, timestamp, read FROM notifications";
+        String sql = "SELECT id, recipient_roll_number, message, timestamp, `read` FROM notifications";
         try (Connection conn = dbManager.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
@@ -70,7 +70,7 @@ public class DataManager {
                         rs.getString("recipient_roll_number"),
                         rs.getString("message"),
                         rs.getString("timestamp"),
-                        rs.getInt("read") == 1
+                        rs.getBoolean(5)
                 );
                 notifications.add(notification);
             }
@@ -234,7 +234,7 @@ public class DataManager {
     }
 
     public void addNotification(Notification notification) {
-        String sql = "INSERT INTO notifications (recipient_roll_number, message, timestamp, read) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO notifications (recipient_roll_number, message, timestamp, `read`) VALUES (?, ?, ?, ?)";
         try (Connection conn = dbManager.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, notification.getRecipientRollNumber());
@@ -276,7 +276,7 @@ public class DataManager {
     }
 
     public void markNotificationAsRead(int notificationId) {
-        String sql = "UPDATE notifications SET read = 1 WHERE id = ?";
+        String sql = "UPDATE notifications SET `read` = 1 WHERE id = ?";
         try (Connection conn = dbManager.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, notificationId);
